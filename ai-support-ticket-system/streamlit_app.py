@@ -70,8 +70,8 @@ with st.form("add_ticket_form"):
     submitted = st.form_submit_button("Submit")
 
 if submitted:
-    recent_ticket_number = int(max(st.session_state.df.ID).split("-")[1])
-    today = datetime.datetime.now().strftime("%m-%d-%Y")
+    recent_ticket_number = int(st.session_state.df["ID"].str.split("-").str[1].astype(int).max())
+    today = datetime.date.today()
     df_new = pd.DataFrame(
         [
             {

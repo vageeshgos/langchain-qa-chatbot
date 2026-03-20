@@ -35,7 +35,7 @@ documents = [
 ]
 
 embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-doc_embeddings = embedding.embed_documents(documents)
+doc_embeddings = np.array(embedding.embed_documents(documents))
 
 @app.route("/", methods=["GET", "POST"])
 def index():

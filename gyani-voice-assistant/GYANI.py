@@ -1,12 +1,10 @@
 import speech_recognition as sr
-import sounddevice as sd
-import numpy as np
-import scipy.io.wavfile as wav
 import webbrowser
 import pyttsx3
 import requests
 import json
 import time
+import functools
 from datetime import datetime, timedelta
 from yt_dlp import YoutubeDL
 
@@ -35,31 +33,6 @@ def speak(text):
     engine.say(text)
     engine.runAndWait()
 
-def record_audio(duration=5, samplerate=16000):
-    """Record audio when needed"""
-    print("Listening... Speak now!")
-    audio_data = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=1, dtype=np.int16)
-    sd.wait()
-    wav.write("temp_audio.wav", samplerate, audio_data)
-    return "temp_audio.wav"
-
-def recognize_audio():
-    """Use SpeechRecognition to transcribe audio"""
-    retries = 3  # Retry limit
-    for _ in range(retries):
-        audio_file = record_audio()
-        with sr.AudioFile(audio_file) as source:
-            audio = recognizer.record(source)
-        try:
-            command = recognizer.recognize_google(audio).lower()
-            print(f"User said: {command}")
-            return command
-        except sr.UnknownValueError:
-            print("Didn't understand, trying again...")
-        except sr.RequestError:
-            return "Error connecting to speech service."
-    return ""  # Return empty after retries
-
 def listen_for_wake_word():
     """Continuously listen for wake word 'Gyani'"""
     while True:
@@ -72,8 +45,9 @@ def listen_for_wake_word():
             print(f"Received Command: {user_command}")
             process_command(user_command)
 
+@functools.lru_cache(maxsize=None)
 def load_schedule(path):
-    """Load JSON schedule"""
+    """Load JSON schedule (result is cached to avoid repeated disk reads)"""
     try:
         with open(path, "r", encoding="utf-8") as file:
             return json.load(file)
