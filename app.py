@@ -13,7 +13,7 @@ if query:
     # You can replace this with document similarity logic
     st.success(f"📘 Answer: I’ll soon answer your question: **{query}**")
 
-from flask import Flask, render_template, request
+from flask import Flask, jsonify, render_template, request
 from langchain_huggingface import HuggingFaceEmbeddings
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
@@ -37,16 +37,34 @@ documents = [
 embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 doc_embeddings = embedding.embed_documents(documents)
 
+def _top_results(query: str):
+    query_embedding = embedding.embed_query(query)
+    similarities = cosine_similarity([query_embedding], doc_embeddings)[0]
+    top_indices = np.argsort(similarities)[-3:][::-1]
+    return [(documents[i], float(similarities[i])) for i in top_indices]
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     results = []
     if request.method == "POST":
         query = request.form["query"]
-        query_embedding = embedding.embed_query(query)
-        similarities = cosine_similarity([query_embedding], doc_embeddings)[0]
-        top_indices = np.argsort(similarities)[-3:][::-1]
-        results = [(documents[i], float(similarities[i])) for i in top_indices]
+        results = _top_results(query)
     return render_template("index.html", results=results)
+
+
+@app.route("/api/ask", methods=["POST"])
+def api_ask():
+    data = request.get_json(silent=True) or {}
+    query = (data.get("query") or "").strip()
+    if not query:
+        return jsonify({"error": "query is required"}), 400
+
+    results = [
+        {"answer": doc, "score": score}
+        for doc, score in _top_results(query)
+    ]
+    return jsonify({"query": query, "results": results}), 200
 
 if __name__ == "__main__":
     app.run(debug=True)
