@@ -58,7 +58,7 @@ Returns top 3 answers with similarity scores.
 ## 🎓 College assignment bundle (ML + MAD Lab + Android Studio)
 
 - **ML backend**: `app.py` exposes `/api/ask` (JSON) using sentence-transformer embeddings and cosine similarity.
-- **MAD lab / Android Studio client**: See `android-sample/` for Kotlin code, layout, and manifest. Point `BASE_URL` to your running Flask host (use `10.0.2.2` on emulator).
+- **MAD lab / Android Studio client**: See `android-sample/` for Kotlin code, layout, and manifest. Point `baseUrl` to your running Flask host (use `10.0.2.2` on emulator).
 - **Quick flow**:
   1. `pip install -r requirements.txt && python app.py`
   2. Open `android-sample/README.md` and paste the provided files into a new Android Studio project.

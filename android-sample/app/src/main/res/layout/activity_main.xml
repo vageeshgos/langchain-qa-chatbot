@@ -5,13 +5,19 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <EditText
-        android:id="@+id/queryInput"
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Ask a question about AI..."
-        android:inputType="textCapSentences"
-        android:padding="12dp" />
+        android:hint="Question">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/queryInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapSentences"
+            android:padding="12dp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/askButton"

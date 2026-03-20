@@ -2,9 +2,9 @@ package com.example.aichatclient
 
 import android.os.Bundle
 import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.textfield.TextInputEditText
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
@@ -17,14 +17,14 @@ import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 
-    private val client = OkHttpClient()
+    // For local development; use HTTPS endpoints for production deployments.
     private val baseUrl = "http://10.0.2.2:5000/api/ask" // Android emulator loopback to host
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val queryInput = findViewById<EditText>(R.id.queryInput)
+        val queryInput = findViewById<TextInputEditText>(R.id.queryInput)
         val askButton = findViewById<Button>(R.id.askButton)
         val resultText = findViewById<TextView>(R.id.resultText)
 
@@ -41,8 +41,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun sendQuery(query: String, onResult: (String) -> Unit) {
         val mediaType = "application/json; charset=utf-8".toMediaType()
-        val sanitizedQuery = query.replace("\"", "\\\"")
-        val body = """{"query":"$sanitizedQuery"}""".toRequestBody(mediaType)
+        val payload = JSONObject().put("query", query)
+        val body = payload.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
             .url(baseUrl)
@@ -84,5 +84,9 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    companion object {
+        private val client: OkHttpClient by lazy { OkHttpClient() }
     }
 }
